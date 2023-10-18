@@ -1,10 +1,10 @@
-const { Router } = require('express');
-const router = Router();
+const express = require('express');
+const router = express.Router();
 const { signUp, login } = require('../controllers/authC');
 const { authenticateToken } = require('../middlewares/authM'); // Imported the middleware
 
 // Registration route (no authentication required) //callback function
-router.post('/auth/register', signUp);
+router.post('/register', signUp);
 
 // Login route (no authentication required) //callback function
 router.post('/login', login);

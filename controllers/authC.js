@@ -1,14 +1,14 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { findOne } = require('../models/user');
+const users=require('../models/user');
 
 // Function to register a new user
-const signUp = async (req, res) => {
+const signUp = async (req, res,next) => {
   try {
-    const { username, email, password, confirmPassword } = req.body;
+    const { firstname, lastname,email, password, confirmPassword } = req.body;
 
     // Check if all user details are filled
-    if (!username || !email || !password || !confirmPassword) {
+    if (!firstname || !lastname || !email || !password || !confirmPassword) {
       return res.status(400).json({ message: 'All details must be filled.' });
     }
 
@@ -18,20 +18,29 @@ const signUp = async (req, res) => {
     }
 
     // Check if the user already exists (assuming unique email)
-    const existingUser = await findOne({ where: { email } });
+    const existingUser = await users.findOne({ where: { email:email } });
 
     if (existingUser) {
-      return res.status(400).json({ message: 'User already exists.' });
+      return res.status(400).json({ message: `User with email ${email} already exists.`});
     }
 
     // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 20); // You can adjust the salt rounds as needed
+
+    //**the password salt should be 10 when 20 it will take a long time to hash the password */
+    //!! Note password salt should be 10 or lower
+    const hashedPassword = await bcrypt.hashSync(password, 10); // You can adjust the salt rounds as needed
 
     // Create a new user
-    const newUser = new User({ username, email, password: hashedPassword }); // Assuming User is your model
-    await newUser.save();
+    const newUser = await users.create(
+      { 
+       firstname:firstname,
+       lastname:lastname, 
+       email:email, 
+       password: hashedPassword 
+      }
+       );
 
-    res.status(201).json({ message: 'User registration successful.', User });
+    res.status(201).json({ message: 'User registration successful.', User:newUser });
   } catch (error) {
     console.error('Error registering user: ', error);
     res.status(500).json({ message: 'Server error.' });
