@@ -1,7 +1,13 @@
 const Sequelize= require('sequelize');
 const Connection= require ('../config/db'); // Imported Sequelize instance
+const ParkSlot = require('./parkSlot');
 
 const User = Connection.define('User', {
+  userID: {
+    type: Sequelize.DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
   firstname: {
     type: Sequelize.DataTypes.STRING,
     allowNull: false,
@@ -20,31 +26,6 @@ const User = Connection.define('User', {
   },
 });
 
+User.belongsTo(ParkSlot,{foreignKey:'parkingSlotID'})
+
 module.exports = User;
-
-
-
-// const { DataTypes } = require('sequelize');
-
-// module.exports = (sequelize, Sequelize) => {
-//   const User = sequelize.define('user', {
-//     firstname: {
-//       type: DataTypes.STRING,
-//       allowNull: false,
-//     },
-//     lastname: {
-//       type: DataTypes.STRING,
-//       allowNull: false,
-//     },
-//     email: {
-//       type: DataTypes.STRING,
-//       allowNull: false,
-//     },
-//     password: {
-//       type: DataTypes.STRING, 
-//       allowNull: false,
-//     },
-//   });
-
-//   return User;
-// };

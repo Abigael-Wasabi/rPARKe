@@ -1,14 +1,17 @@
-const { findOne, findById, countDocuments } = require('../models/parkSlot');
-const { create, findById: _findById } = require('../models/car');
+// const { findOne, findById, countDocuments } = require('../models/parkSlot');
+// const { create, findById: _findById } = require('../models/car');
+const parkingSlot = require ('../models/parkSlot');
+const HttpError = require('http-errors');
+
 
 // Function to enter parking details
 const enterParkingDetails = async (req, res) => {
   try {
     // Get data from the request body
-    const {arrivalTime,departureTime,carType,numberOfVehicles,registrationNumber,contactNumber} = req.body;
+    const {arrivalTime,departureTime,carType,registrationNumber} = req.body;
 
     // Check if all details are filled
-    if (!arrivalTime || !departureTime || !carType || !numberOfVehicles || !registrationNumber || !contactNumber) {
+    if (!arrivalTime || !departureTime || !carType || !registrationNumber) {
       return res.status(400).json({ message: 'All details must be filled.' });
     }
 
@@ -20,12 +23,12 @@ const enterParkingDetails = async (req, res) => {
     }
 
     // Create a new car entry
-    const car = await create({arrivalTime,departureTime,carType,numberOfVehicles,registrationNumber,contactNumber,
+    const car = await create({arrivalTime,departureTime,carType,registrationNumber,
       parkingSlotID: availableSlot.parkingSlotID,
     });
 
-    // Update the parking slot status to 'occupied'
-    availableSlot.parkingSlotStatus = 'occupied';
+    // Update the parking slot status to 'active'
+    availableSlot.parkingSlotStatus = 'active';
     await availableSlot.save();
 
     // Set a reminder for 15 minutes before arrival time (You would need to implement this separately)
@@ -69,7 +72,7 @@ const cancelReservation = async (req, res) => {
     // Release the parking slot (update status to 'available')
     const slot = await findById(car.parkingSlotID);
     if (slot) {
-      slot.parkingSlotStatus = 'available';
+      slot.parkingSlotStatus = 'vacant';
       await slot.save();
     }
 
@@ -87,7 +90,7 @@ const cancelReservation = async (req, res) => {
 const checkAvailableSlots = async (req, res) => {
   try {
     // Count the number of available parking slots
-    const availableSlotsCount = await countDocuments({ parkingSlotStatus: 'available' });
+    const availableSlotsCount = await parkingSlot.count({where: {parkingSlotStatus:'vacant'}});
 
     res.status(200).json({ message: 'Available parking slots count:', availableSlotsCount });
   } catch (error) {

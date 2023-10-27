@@ -1,5 +1,6 @@
 const Sequelize= require('sequelize');
-const Connection= require ('../config/db');
+const Connection= require('../config/db');
+const Car=require('./car');
 
 const ParkingSlot = Connection.define('ParkingSlot', {
   parkingSlotID: {
@@ -7,38 +8,16 @@ const ParkingSlot = Connection.define('ParkingSlot', {
     autoIncrement: true,
     primaryKey: true,
   },
+  parkingSlotNumber: {
+    type: Sequelize.DataTypes.INTEGER,
+    allowNull: false,
+  },
   parkingSlotStatus: {
     type: Sequelize.DataTypes.STRING,
-    allowNull: true,
+    allowNull: false,
   },
-  // Other ParkingSlot fields as needed
 });
 
+ParkingSlot.belongsTo(Car, {foreignKey:'carID', as: 'carID'});
+
 module.exports = ParkingSlot;
-
-
-
-
-
-
-
-
-
-// const {DataTypes} = require('sequelize');
-
-
-// module.exports = (sequelize, Sequelize)=>{
-//   const ParkSlot = sequelize.define('parkSlot',{
-//     parkingSlotID: {
-//       type: DataTypes.INTEGER,
-//       autoIncrement: true,
-//       primaryKey: true,
-//     },
-//     parkingSlotStatus: {
-//       type: DataTypes.STRING,
-//       allowNull: false,
-//     },
-//   });
-
-//   return ParkSlot;
-// };

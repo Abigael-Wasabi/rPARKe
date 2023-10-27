@@ -1,16 +1,40 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
-const db = require('./config/db'); // Assuming db.js exports Sequelize instance
+const db = require('./config/db'); // db.js exports Sequelize instance
 const authRoutes = require('./routes/authR');
 const carSlotRoutes = require('./routes/carSlotR');
 const sequlize = require('./config/db');
+
 //** model imports */
-//!! inport your models below this line after defining them 
+//!! import your models below this line after defining them 
 
 require('./models/car');
 require('./models/parkSlot');
 require('./models/user');
+
+
+// //* joins 
+// require('./models/parkSlot').hasOne(require('./models/user'));
+// require('./models/user').belongsTo(require('./models/parkSlot'));
+
+// require('./models/car').hasOne(require('./models/parkSlot'));
+// require('./models/parkSlot').belongsTo(require('./models/car'));
+
+// require('./models/user').hasOne(require('./models/car'));
+// require('./models/car').belongsTo(require('./models/user'));
+
+
+// require('./models/parkSlot').hasOne(require('./models/user'));
+// require('./models/user').belongsTo(ParkingSlot, { foreignKey: 'parkingSlotID' });
+
+// require('./models/car').hasOne(require('./models/parkSlot'));
+// require('./models/parkSlot').belongsTo(Car, { foreignKey: 'carID' });
+
+// require('./models/user').hasOne(require('./models/car'));
+// require('./models/car').belongsTo(User, { foreignKey: 'userID' });
+
+
 
 //**sync db */
 //!! used to sync the DB after changes it is the same as laravel seeders
@@ -48,6 +72,7 @@ db.authenticate()
   .catch((err) => {
     console.error('Error connecting to the database:', err);
   });
+
 
 //**check for errors in the path */
 app.use((req,res,next)=>{
