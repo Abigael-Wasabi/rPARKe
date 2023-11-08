@@ -1,8 +1,9 @@
 const Sequelize= require('sequelize');
-const Connection= require ('../config/db'); // Imported Sequelize instance
-const ParkSlot = require('./parkSlot');
+const sequelize= require ('../config/db'); // Imported Sequelize instance
+const ParkingSlot = require('./parkSlot');
 
-const User = Connection.define('User', {
+
+const User = sequelize.define('User', {
   userID: {
     type: Sequelize.DataTypes.INTEGER,
     autoIncrement: true,
@@ -26,6 +27,6 @@ const User = Connection.define('User', {
   },
 });
 
-User.belongsTo(ParkSlot,{foreignKey:'parkingSlotID'})
+User.belongsTo(ParkingSlot,{foreignKey:'parkingSlotID'});
 
 module.exports = User;

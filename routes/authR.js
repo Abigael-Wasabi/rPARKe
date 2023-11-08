@@ -4,10 +4,10 @@ const { signUp, login } = require('../controllers/authC');
 const { authenticateToken } = require('../middlewares/authM'); // Imported the middleware
 
 // Registration route (no authentication required) //callback function
-router.post('/register', signUp);
+router.post('/register', signUp);//!working both FnB
 
 // Login route (no authentication required) //callback function
-router.post('/login', login);
+router.post('/login', login);//!working both FnB
 
 // Protected route: Example of a route that requires authentication
 router.get('/profile', authenticateToken, (req, res) => {
@@ -16,6 +16,5 @@ router.get('/profile', authenticateToken, (req, res) => {
   res.json({ message: 'This is a protected route for user profile.' });
 });
 
-// Other routes...
 
 module.exports = router;

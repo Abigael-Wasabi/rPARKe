@@ -1,19 +1,20 @@
-const Sequelize= require('sequelize');
-const Connection= require ('../config/db');  // Imported Sequelize instance
+const {Sequelize,DataTypes} = require('sequelize');
+const sequelize= require('../config/db');  // Imported Sequelize instance
 const User = require('./user');
+const ParkingSlot = require('./parkSlot');
 
-const Car = Connection.define('Car', {
+const Car = sequelize.define('Car', {
   carID: {
     type: Sequelize.DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
   arrivalTime: {
-    type: Sequelize.DataTypes.DATE,
+    type: Sequelize.DataTypes.TIME,
     allowNull: false,
   },
   departureTime: {
-    type: Sequelize.DataTypes.DATE,
+    type: Sequelize.DataTypes.TIME,
     allowNull: false,
   },
   carType: {
@@ -26,6 +27,7 @@ const Car = Connection.define('Car', {
   }, 
 });
 
-Car.belongsTo(User, {foreignKey: 'UserID'});
+Car.belongsTo(User, {foreignKey:'userID'});
+// ParkingSlot.hasOne(Car)
 
 module.exports = Car;

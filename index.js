@@ -4,41 +4,19 @@ const cors = require('cors');
 const db = require('./config/db'); // db.js exports Sequelize instance
 const authRoutes = require('./routes/authR');
 const carSlotRoutes = require('./routes/carSlotR');
-const sequlize = require('./config/db');
+const sequelize = require('./config/db');
 
 //** model imports */
 //!! import your models below this line after defining them 
 
 require('./models/car');
 require('./models/parkSlot');
-require('./models/user');
-
-
-// //* joins 
-// require('./models/parkSlot').hasOne(require('./models/user'));
-// require('./models/user').belongsTo(require('./models/parkSlot'));
-
-// require('./models/car').hasOne(require('./models/parkSlot'));
-// require('./models/parkSlot').belongsTo(require('./models/car'));
-
-// require('./models/user').hasOne(require('./models/car'));
-// require('./models/car').belongsTo(require('./models/user'));
-
-
-// require('./models/parkSlot').hasOne(require('./models/user'));
-// require('./models/user').belongsTo(ParkingSlot, { foreignKey: 'parkingSlotID' });
-
-// require('./models/car').hasOne(require('./models/parkSlot'));
-// require('./models/parkSlot').belongsTo(Car, { foreignKey: 'carID' });
-
-// require('./models/user').hasOne(require('./models/car'));
-// require('./models/car').belongsTo(User, { foreignKey: 'userID' });
-
+require('./models/user'); 
 
 
 //**sync db */
 //!! used to sync the DB after changes it is the same as laravel seeders
-sequlize.sync({alert:true});
+sequelize.sync({alert:true});
 
 dotenv.config();
 
@@ -93,4 +71,10 @@ app.use((err,req,res,next)=>{
   const PORT = process.env.PORT || 4000;
   app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
+  });
+
+
+  // Synchronize Sequelize models with the database
+  sequelize.sync().then(() => {
+    console.log('Sequelize models synchronized with the database.');
   });

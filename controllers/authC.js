@@ -28,7 +28,7 @@ const signUp = async (req, res,next) => {
 
     //**the password salt should be 10 when 20 it will take a long time to hash the password */
     //!! Note password salt should be 10 or lower
-    const hashedPassword = await bcrypt.hashSync(password, 10); // You can adjust the salt rounds as needed
+    const hashedPassword = bcrypt.hashSync(password, 10); // You can adjust the salt rounds as needed
 
     // Create a new user
     const newUser = await users.create(
@@ -50,9 +50,9 @@ const signUp = async (req, res,next) => {
 // Function to login a user
 const login = async (req, res) => {
   try {
-    const { identifier, password } = req.body;
-    // Find user based on email or username
-    const user = await findOne({ $or: [{ email: identifier }, { username: identifier }] });
+    const { email, password } = req.body;
+    // Find user based on email
+    const user = await users.findOne({ where :{email : email } });
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -77,7 +77,7 @@ const login = async (req, res) => {
 const generateToken = (user) => {
   const payload = { userId: user.id }; // You can include any user-related data you want here
 
-  const options = { expiresIn: '1h' }; // Token expires in 1 hour (adjust as needed)
+  const options = { expiresIn: '1h' }; // Token expires in 1 hour
 
   const secretKey = 'emergency-kit'; // Replace with your secret key
   return jwt.sign(payload, secretKey, options);

@@ -1,7 +1,11 @@
-// const { findOne, findById, countDocuments } = require('../models/parkSlot');
-// const { create, findById: _findById } = require('../models/car');
-const parkingSlot = require ('../models/parkSlot');
+const { findOne, findById, countDocuments } = require('../models/parkSlot');
+const { create, findById: _findById } = require('../models/car');
+
 const HttpError = require('http-errors');
+const sequelize = require('../config/db');
+
+const parkingSlot = require ('../models/parkSlot');
+const Car = require ('../models/car');
 
 
 // Function to enter parking details
@@ -16,22 +20,26 @@ const enterParkingDetails = async (req, res) => {
     }
 
     // Check if a parking slot is available
-    const availableSlot = await findOne({ parkingSlotStatus: 'available' });
+    const availableSlot = await parkingSlot.findOne({ where:{parkingSlotStatus:'vacant'}});
+
 
     if (!availableSlot) {
-      return res.status(400).json({ message: 'No available parking slot.' });
+      return res.status(400).json({ message: 'No available parking slot' });
     }
 
     // Create a new car entry
-    const car = await create({arrivalTime,departureTime,carType,registrationNumber,
-      parkingSlotID: availableSlot.parkingSlotID,
-    });
+    const car = await Car.create({
+      arrivalTime,
+      departureTime,
+      carType,
+      registrationNumber,
+      parkingSlotID: availableSlot.parkingSlotID});
 
     // Update the parking slot status to 'active'
     availableSlot.parkingSlotStatus = 'active';
     await availableSlot.save();
 
-    // Set a reminder for 15 minutes before arrival time (You would need to implement this separately)
+    //!! Set a reminder for 15 minutes before arrival time (You would need to implement this separately)
 
     res.status(201).json({ message: 'Parking details entered successfully.', car });
   } catch (error) {
@@ -40,15 +48,42 @@ const enterParkingDetails = async (req, res) => {
   }
 };
 
-// Function to allocate a random parking slot
+// Function to allocate a random slot
 const allocateRandomSlot = async (req, res) => {
   try {
-    // Check if a parking slot is available
-    const availableSlot = await findOne({ parkingSlotStatus: 'available' });
+    const { carType } = req.query;
+
+    let minSlot, maxSlot;
+    if (carType === '2 wheeler') {
+      minSlot = 21;
+      maxSlot = 30;
+    } else if (carType === '4 wheeler') {
+      minSlot = 11; 
+      maxSlot = 20;
+    } else if (carType === '4+ wheeler') {
+      minSlot = 1;
+      maxSlot = 10;
+    } else { 
+      return res.status(400).json({ message: 'Invalid car type.' });
+    }
+
+    // Generate a random slot number between minSlot and maxSlot
+    const randomSlotNumber = Math.floor(Math.random() * (maxSlot - minSlot + 1)) + minSlot;
+
+    // Check if the generated slot is available
+    const availableSlot = await parkingSlot.findOne({
+      where: { parkingSlotNumber: randomSlotNumber, parkingSlotStatus: 'vacant' }
+    });
 
     if (!availableSlot) {
       return res.status(400).json({ message: 'No available parking slot.' });
     }
+
+    // Update status to /active or /booked
+    availableSlot.parkingSlotStatus = 'active'; // or 'booked'
+    await availableSlot.save();
+
+    console.log('Parking slot allocated successfully.');
 
     res.status(200).json({ message: 'Parking slot allocated successfully.', parkingSlot: availableSlot });
   } catch (error) {
@@ -56,6 +91,7 @@ const allocateRandomSlot = async (req, res) => {
     res.status(500).json({ message: 'Server error.' });
   }
 };
+
 
 // Function to cancel reservation (assuming you have a car cancellation mechanism)
 const cancelReservation = async (req, res) => {
@@ -100,3 +136,10 @@ const checkAvailableSlots = async (req, res) => {
 };
 
 module.exports = { enterParkingDetails, allocateRandomSlot, cancelReservation, checkAvailableSlots };
+
+
+
+
+
+
+//!!status to b for a parkSlot No
