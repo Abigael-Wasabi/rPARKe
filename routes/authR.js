@@ -1,20 +1,27 @@
 const express = require('express');
 const router = express.Router();
-const { signUp, login } = require('../controllers/authC');
+const { signUp, login, logout, editProfile, getUserProfile} = require('../controllers/authC');
 const { authenticateToken } = require('../middlewares/authM'); // Imported the middleware
 
-// Registration route (no authentication required) //callback function
-router.post('/register', signUp);//!working both FnB
 
-// Login route (no authentication required) //callback function
+router.post('/signup', signUp);//!working both FnB
+
+
 router.post('/login', login);//!working both FnB
 
-// Protected route: Example of a route that requires authentication
-router.get('/profile', authenticateToken, (req, res) => {
-  // Only authenticated users can access this route
-  // You can access the authenticated user via req.user
-  res.json({ message: 'This is a protected route for user profile.' });
-});
+//pr req auth
+router.put('/editProfile', authenticateToken, editProfile);
 
+router.get('/profile', authenticateToken, getUserProfile);
+
+router.delete('/logout', logout, authenticateToken, (req, res)=>{
+    req.session.destroy((err)=>{
+        if (err) {
+            console.error('Error destroying session:', err);
+        } else {
+            res.send('Logout successful');
+        }
+    });
+});
 
 module.exports = router;

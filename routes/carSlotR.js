@@ -2,16 +2,22 @@ const { Router } = require ('express');
 const router = Router();
 const { enterParkingDetails, allocateRandomSlot, cancelReservation, checkAvailableSlots } = require('../controllers/carC'); // Imported the car controller
 
-// Route to enter parking details 
+//routes
 router.post('/enterParkingDetails', enterParkingDetails);//!working both FnB
 
-// Route to allocate a random parking slot
-router.get('/allocateRandomSlot', allocateRandomSlot);//!working !!!!
+router.get('/allocateRandomSlot', allocateRandomSlot);//!working both FnB
 
-// Route to check available slots
-router.get('/checkAvailableSlots', checkAvailableSlots);//!working 
 
-// Route to cancel a reservation
-router.post('/cancelReservation', cancelReservation);//!working
+router.get('/checkAvailableSlots', checkAvailableSlots);//!working both FnB
+
+
+router.post('/cancelReservation', async (req, res) => {
+    try{
+        const {carID} = req.body;
+        await cancelReservation(req, res, carID);
+    } catch(error){
+        console.error(error);
+        res.status(500).json({ message: 'Server error.' });}
+});//!working
 
 module.exports = router; 

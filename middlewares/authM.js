@@ -1,5 +1,5 @@
 const { verify } = require('jsonwebtoken');
-const secretKey = 'emergency-kit'; // Replace with your actual secret key
+const secretKey = 'emergency-kit'; //secret key
 
 const authenticateToken = (req, res, next) => {
   const token = req.header('Authorization');
@@ -12,6 +12,9 @@ const authenticateToken = (req, res, next) => {
     if (err) {
       return res.status(403).json({ message: 'Invalid token' });
     }
+
+    console.log('Decoded Token:', user);
+    
     req.user = user; // You can access the user object in your routes
     next();
   });

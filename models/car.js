@@ -1,7 +1,7 @@
 const {Sequelize,DataTypes} = require('sequelize');
 const sequelize= require('../config/db');  // Imported Sequelize instance
 const User = require('./user');
-const ParkingSlot = require('./parkSlot');
+
 
 const Car = sequelize.define('Car', {
   carID: {
@@ -28,6 +28,5 @@ const Car = sequelize.define('Car', {
 });
 
 Car.belongsTo(User, {foreignKey:'userID'});
-// ParkingSlot.hasOne(Car)
 
 module.exports = Car;

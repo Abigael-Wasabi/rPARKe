@@ -1,5 +1,5 @@
 const  Sequelize  = require('sequelize');
-require('dotenv').config({ path: './.env' }); // Adjust the path based on your folder structure
+require('dotenv').config({ path: './.env' });
 
 const sequelize = new Sequelize({
   dialect: 'mysql',
