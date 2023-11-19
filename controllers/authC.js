@@ -76,11 +76,22 @@ const generateToken = (user) => {
 
 const editProfile = async (req, res) => {
   try {
-    const userId = req.user.userId; // Extract user ID from the token
-    const { firstname, lastname, email, password, session } = req.body;
+    const userId = req.user.userID;
+    const { firstname, lastname, email, password} = req.body;
 
-    // Validate and update user details in the database
-    // Your validation and update logic here...
+    const user = await users.findOne({ where: { userId } });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    if (firstname) user.firstname = firstname;
+    if (lastname) user.lastname = lastname;
+    if (email) user.email = email;
+
+    if (password) {
+      const hashedPassword = bcrypt.hashSync(password, 10);
+      user.password = hashedPassword;
+    }
+    await user.save();
 
     res.status(200).json({ message: 'Profile updated successfully' });
   } catch (error) {

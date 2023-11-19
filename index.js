@@ -54,7 +54,7 @@ app.use('/car', carSlotRoutes);
 app.use('/mpesa',mpesaRoutes);
 app.use('/admin',adminRoutes);
 
-app.get('/', (req, res) => {
+app.get('/', (req, res) => { 
   res.send('Welcome to the server! Swift Slot Allocation, Seamless Mobile Payments',
   {token:'test123'});
 });
