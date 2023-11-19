@@ -3,40 +3,37 @@ const axios = require("axios");
 
 
 //!runs as a middleware b4 we get stk push
-const createToken = async (req, res, next) => {
-  try{
-    const secret = process.env.SECRET_KEY;
-    const consumer = process.env.CONSUMER_KEY;
-    const auth = Buffer.from(`${consumer}:${secret}`).toString("base64");
-    const response = await axios.post(
-    "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials",null,
-      {
-        headers: { 
-          authorization: `Basic ${auth}`,
-        },
-      }
-    )
-    console.log(response.data);
-
-    if (response.data && response.data.access_token) {
-      req.token = response.data.access_token;
-      next();
-    } else {
-      console.error("Unexpected response structure from Safaricom API:", response.data);
-      throw new Error("Invalid response from Safaricom API");
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: "Error generating token." });
-  }
+    const createToken = async (req, res, next) => {
+      const secret = "RG39qwogoZeUz29O";
+      const consumer = "dWoBrA7okqW5wrDCh8GwB87RtQWGY4wE";
+      const auth = new Buffer.from(`${consumer}:${secret}`).toString("base64");
+      await axios
+        .get(
+          "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials",
+          {
+            headers: {
+              authorization: `Basic ${auth}`,
+            },
+          }
+        )
+        .then((data) => {
+          token = data.data.access_token;
+          console.log(data.data);
+          next();
+        })
+        .catch((err) => {
+          console.log(err);
+          res.status(400).json(err.message);
+        });
     };
 
 const postStk = async (req, res) => {
   const shortCode = 4119567;
-  const phone = req.body.phone && req.body.phone.substring(1);
+  const phone = req.body.phone.substring(1);
   const amount = req.body.amount;
-  const passkey ="5c973b3b8967d889259776b058248347962926aea0943773301f482cb35db058";
-  const url = "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
+  const passkey =
+    "5c973b3b8967d889259776b058248347962926aea0943773301f482cb35db058";
+  const url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
   const date = new Date();
   const timestamp =
     date.getFullYear() +
@@ -55,7 +52,7 @@ const postStk = async (req, res) => {
     TransactionType: "CustomerPayBillOnline",
     Amount: 1000,
     PartyA: `254${phone}`,
-    PartyB: shortCode, 
+    PartyB: shortCode,
     PhoneNumber: `254${phone}`,
     CallBackURL: "http://ambyachievers.org/path",
     AccountReference: "Mpesa",
@@ -74,9 +71,10 @@ const postStk = async (req, res) => {
     })
     .catch((err) => {
       console.log(err);
-      res.status(400).json({message: 'Error posting STK request.'});
+      res.status(400).json(err.message);
     });
 };
+
 const calculateParkingFee = async (req, res) => {
   try {
     const hoursParked = req.body.hoursParked;
