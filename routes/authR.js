@@ -1,14 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const { signUp, login, logout, editProfile, getUserProfile} = require('../controllers/authC');
+const { passwordReset, updatePassword } = require('../controllers/fpC');
 const { authenticateToken } = require('../middlewares/authM');
+const authcontroller = require("../controllers/authC")
 
+router.post('/signup', authcontroller.signUp);
+router.post('/login', authcontroller.login);
+router.post('/passwordreset', passwordReset);
+router.post('/updatepassword', updatePassword);
 
-router.post('/signup', signUp);//!working both FnB
-
-
-router.post('/login', login);//!working both FnB
-
+ 
 //pr req auth
 router.put('/editProfile', authenticateToken, async (req, res) => {
     try{

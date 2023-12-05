@@ -9,44 +9,43 @@ const parkingSlot = require ('../models/parkSlot');
 const Car = require ('../models/car');
 
 const calcParkingFee = (arrivalTime, departureTime) => {
-  const arrivalHour = parseInt(arrivalTime.split(':')[0]);
+  const arrivalHour = parseInt(arrivalTime.split(':')[0]);//!takes time str splits using colon ,convts to int n acces elmt at pos 0
   const departureHour = parseInt(departureTime.split(':')[0]);
   const parkingHours = departureHour - arrivalHour;
 
   if (parkingHours >= 1 && parkingHours <= 3) {
-    return 200;
+    return 50;
   } else if (parkingHours <= 5) {
-    return 400;
+    return 100;
   } else if (parkingHours <= 7) {
-    return 600;
+    return 200;
   } else if (parkingHours <= 9) {
-    return 800;
+    return 300; 
   } else if (parkingHours <= 11) {
-    return 1000;
+    return 400;
   } else if (parkingHours <= 13) {
-    return 1200;
+    return 500;
   } else if (parkingHours <= 15) {
-    return 1400;
+    return 600;
   } else if (parkingHours <= 17) {
-    return 1600;
-  } else if (parkingHours <= 18) {
-    return 1800;
+    return 700;
+  } else if (parkingHours <= 18) { 
+    return 800;
   } else {
     return 0;
   }
 };
 
-const enterParkingDetails = async (req, res) => {
+const enterBookingDetails = async (req, res) => {
   try {
     const {arrivalTime,departureTime,carType,registrationNumber} = req.body;
 
     if (!arrivalTime || !departureTime || !carType || !registrationNumber) {
       return res.status(400).json({ message: 'All details must be filled.' });
     }
-    
     const availableSlot = await parkingSlot.findOne({ where:{parkingSlotStatus:'vacant'}});
 
-
+ 
     if (!availableSlot) {
       return res.status(400).json({ message: 'No available parking slot' });
     }
@@ -59,7 +58,7 @@ const enterParkingDetails = async (req, res) => {
       parkingSlotID: availableSlot.parkingSlotID,
       });
 
-    availableSlot.parkingSlotStatus = 'active';
+    availableSlot.parkingSlotStatus = 'booked';
     await availableSlot.save();
 
     const parkingFee = calcParkingFee(arrivalTime, departureTime);
@@ -100,7 +99,7 @@ const allocateRandomSlot = async (req, res) => {
       return res.status(400).json({ message: 'No available parking slot.' });
     }
 
-    availableSlot.parkingSlotStatus = 'active'; // or 'booked'
+    availableSlot.parkingSlotStatus = 'booked';
     await availableSlot.save();
 
     console.log('Parking slot allocated successfully.');
@@ -146,7 +145,7 @@ const checkAvailableSlots = async (req, res) => {
   }
 };
 
-module.exports = { enterParkingDetails, allocateRandomSlot, cancelReservation, checkAvailableSlots, calcParkingFee };
+module.exports = { enterBookingDetails, allocateRandomSlot, cancelReservation, checkAvailableSlots, calcParkingFee };
 
 
 
@@ -154,3 +153,98 @@ module.exports = { enterParkingDetails, allocateRandomSlot, cancelReservation, c
  //!! reminder 15 minutes before arrival time
 
 //!!status to b for a parkSlot No
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// require('dotenv').config(); //!! the .env
+// const axios = require("axios");
+
+
+// //!runs as a middleware b4 we get stk push
+//     const createToken = async (req, res, next) => {
+//       const secret = "RG39qwogoZeUz29O";
+//       const consumer = "dWoBrA7okqW5wrDCh8GwB87RtQWGY4wE";//!unique identifier of my app
+//       const auth = Buffer.from(`${consumer}:${secret}`).toString("base64");//!raw binary data representation in nodejs
+//       await axios
+//         .get(
+//           "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials",//!its the daraja API endpoint used to generate access tokens
+//           {
+//             headers: {
+//               authorization: `Basic ${auth}`,//!auth string used in the headers of my http requests to auth my app with daraja API
+//             },
+//           } 
+//         )
+//         .then((data) => {
+//           token = data.data.access_token;//!after sucs http req generate token
+//           console.log(data.data);//!log data on console
+//           next();//!proceed to next midlw
+//         })
+//         .catch((err) => {
+//           console.log(err);
+//           res.status(400).json(err.message);
+//         });
+//     };
+// //!neces params
+// const postStk = async (req, res) => {
+//   const shortCode = 4119567;
+//   const phone = req.body.phone.substring(1);
+//   const amount = req.body.amount;
+//   const passkey ="5c973b3b8967d889259776b058248347962926aea0943773301f482cb35db058";
+//   const url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
+//   const date = new Date();
+//   const timestamp = date.getFullYear() +
+//     ("0" + (date.getMonth() + 1)).slice(-2) +
+//     ("0" + date.getDate()).slice(-2) +
+//     ("0" + date.getHours()).slice(-2) +
+//     ("0" + date.getMinutes()).slice(-2) +
+//     ("0" + date.getSeconds()).slice(-2);
+//   const password = new Buffer.from(shortCode + passkey + timestamp).toString(
+//     "base64"
+//   );
+//   const data = {
+//     BusinessShortCode: shortCode,
+//     Password: password,
+//     Timestamp: timestamp,
+//     TransactionType: "CustomerPayBillOnline",
+//     Amount: 1000,
+//     PartyA: `254${phone}`,
+//     PartyB: shortCode,
+//     PhoneNumber: `254${phone}`,
+//     CallBackURL: "http://ambyachievers.org/path",
+//     AccountReference: "Mpesa",
+//     TransactionDesc: "stk push",
+//   };
+
+//   await axios
+//     .post(url, data, {
+//       headers: {
+//         authorization: `Bearer ${token}`,
+//       },
+//     })
+//     .then((data) => {
+//       console.log(data);
+//       res.status(200).json(data.data);
+//     })
+//     .catch((err) => {
+//       console.log(err);
+//       res.status(400).json(err.message);
+//     });
+// };
+
+// module.exports = { createToken, postStk };
