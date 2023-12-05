@@ -98,7 +98,7 @@ const authController = {
         user.password = hashedPassword;
       }
       await user.save();
-  
+  //!
       const updatedUser = await users.findOne({ where: { userID } });
       res.status(200).json({ message: 'Profile updated successfully', user: updatedUser });
     } catch (error) {
