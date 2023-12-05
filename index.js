@@ -1,18 +1,20 @@
 const express = require('express');
 const cookieParser = require("cookie-parser");
 const session = require('express-session');
-const http = require('http');
+// const http = require('http');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const db = require('./config/db'); // db.js exports Sequelize instance
+require('dotenv').config({ path: './.env' });
 const authRoutes = require('./routes/authR');
-const carSlotRoutes = require('./routes/carSlotR');
+const carSlotRoutesb = require('./routes/carSlotRb');
+const carSlotRoutesp = require('./routes/carSlotRp');
 const mpesaRoutes = require('./routes/mpesaR');
 const adminRoutes = require('./routes/admin');
 
 require('./models/car');
 require('./models/parkSlot');
-require('./models/user'); 
+require('./models/user');  
 
 
 //sync the DB after changes/eq=laravel seeders
@@ -22,42 +24,45 @@ dotenv.config();
 
 const app = express(); 
 
-const oneHour = 1000 * 60 * 60; 
 app.use(session({
   secret: 'secretSession123',
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: oneHour },
+  cookie: { maxAge: 3600000 },
 }));
 
+app.get('/s', (req, res) => { 
+  req.session.firstname = 'example_user';
+  res.send('Session initialized!');
+});
+app.get('/dashboard', (req, res) => {
+  const firstname = req.session.firstname;
+  res.send(`Welcome, ${firstname}!`);
+});
 
-// Middleware
-const allowedOrigins = ["http://localhost:3000"]; 
+const corsOptions = {
+  origin: 'http://192.168.2.117:3000',  // Update the origin to match your client application's origin
+  methods: ['GET', 'HEAD', 'POST', 'PATCH', 'PUT', 'DELETE']}
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cors({ 
-    origin: (origin, callback) => { 
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        const error = new Error('Not allowed by cors'); 
-        console.error(error.message);
-        callback(error);} } }
-));
+app.use(cors(corsOptions));
 app.use(cookieParser());
 
 
 
 // Routes
 app.use('/user', authRoutes);
-app.use('/car', carSlotRoutes);
+app.use('/carb', carSlotRoutesb);
+app.use('/carp', carSlotRoutesp);
 app.use('/mpesa',mpesaRoutes);
 app.use('/admin',adminRoutes);
 
 app.get('/', (req, res) => { 
-  res.send('Welcome to the server! Swift Slot Allocation, Seamless Mobile Payments',
-  {token:'test123'});
-});
+  res.send({
+    message: 'Welcome to the server! Swift Slot Allocation, Seamless Mobile Payments',
+    token:'test123'}); 
+});  
 
 // Database Connection
 db.authenticate()
@@ -71,7 +76,7 @@ db.authenticate()
 
 //**check for errors in the path */
 app.use((req, res, next) => {
-  const err = new Error("Not Found");
+  const err = new Error("Not Found"); 
   err.status = 404;
   next(err);
 });

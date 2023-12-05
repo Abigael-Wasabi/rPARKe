@@ -1,9 +1,9 @@
 const { Router } = require ('express');
 const router = Router();
-const { enterParkingDetails, allocateRandomSlot, cancelReservation, checkAvailableSlots } = require('../controllers/carC'); // Imported the car controller
+const { enterBookingDetails, allocateRandomSlot, cancelReservation, checkAvailableSlots } = require('../controllers/carCb');
 
 //routes
-router.post('/enterParkingDetails', enterParkingDetails);//!working both FnB
+router.post('/enterBookingDetails', enterBookingDetails);//!working both FnB
 
 router.get('/allocateRandomSlot', allocateRandomSlot);//!working both FnB
 
